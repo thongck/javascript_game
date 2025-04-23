@@ -1,0 +1,11 @@
+{
+  "name": "javascript_game",
+  "version": "1.0.0",
+  "description": "create a js game to learn js concepts",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
