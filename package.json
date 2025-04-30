@@ -2,7 +2,8 @@
   "name": "javascript_game",
   "version": "1.0.0",
   "description": "create a js game to learn js concepts",
-  "main": "user_gameplay.js",
+  "main": "find_your_hat.js",
+  "type":"module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
