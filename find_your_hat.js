@@ -34,6 +34,13 @@ class Field {
     }
 
     //methods
+    endGame() {
+        console.log(END_GAME);
+        this.gamePlay = false;
+        process.exit();
+    }
+
+
     static welcomeMessage(msg) {
         console.log(
             "\n****************\n"
@@ -41,6 +48,23 @@ class Field {
             "\n****************\n"
             
         );
+
+        let userInput = prompt("Game level select? (1=EASY, 2=NORMAL, 3=EXPERT)");
+        let fieldSize = 0;
+        switch(userInput) {
+            case '1':
+            case '2':
+            case '3':
+                fieldSize = userInput * 10;
+                break;
+            
+            default:
+                console.log(NOT_RECOGNISED);
+                console.log(END_GAME);
+                process.exit();
+                break;
+        }
+        return fieldSize;
     }
 
     //Method to generate the game field
@@ -109,10 +133,8 @@ class Field {
 
 }
 
-Field.welcomeMessage("Welcome!!");
-
-const ROWS = 10;
-const COLS = 10;
+const ROWS = Field.welcomeMessage("Welcome!!");;
+const COLS = ROWS;
 
 const gameField = new Field(ROWS,COLS);
 gameField.startGame();
