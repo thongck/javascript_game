@@ -1,4 +1,5 @@
 import promptSync from "prompt-sync";
+import chalk from "chalk";
 
 let prompt = new promptSync();
 
@@ -18,10 +19,16 @@ const NOT_RECOGNISED = "Input is not recognised.";
 
 //Constants for Game elements 
 
-const HAT = "^";
-const HOLE = "O";
-const GRASS = "░";
-const PLAYER = "*";
+// const HAT = "^";
+// const HOLE = "O";
+// const GRASS = "░";
+// const PLAYER = "*";
+
+const HAT = chalk.yellow("^");
+const HOLE = chalk.red("O");
+const GRASS = chalk.green("░"); 
+const PLAYER = chalk.blue("*");
+const VISITED = chalk.grey("*");
 
 //Create a class for the game
 class Field {
@@ -31,6 +38,7 @@ class Field {
         this.cols = cols;
         this.field = new Array();
         this.gamePlay = false;
+        this.playerPos = [0,0];
     }
 
     //methods
@@ -55,7 +63,7 @@ class Field {
             case '1':
             case '2':
             case '3':
-                fieldSize = userInput * 10;
+                fieldSize = 8 + (userInput - 1) * 4;
                 break;
             
             default:
@@ -72,15 +80,28 @@ class Field {
         for(let i=0; i< this.rows; i++) {
             this.field[i] = new Array();
             for (let j = 0; j < this.cols; j++) {
-                this.field[i][j] = GRASS;
-                
+                this.field[i][j] = Math.random() > 0.2? GRASS : HOLE;
             } 
         }
+        // Place player at starting position
+        this.field[0][0] = PLAYER;
+
+        //Place hat at random - but always not in same quadrant as the player start position
+        let loc = new Array(2);
+        let j=0;
+        for(let i=0; i<2; i++) {
+            j = Math.random();
+            if(j < 0.5) {       /* Ensure always we have j > 0.5 */
+                j = 1.0 - 0.5;
+            }
+            loc[i] = Math.floor(j * this.rows);
+        }
+        this.field[loc[0]][loc[1]] = HAT;
     }
 
     //method to print field
     printField() {
-        
+        console.log("\n");
         this.field.forEach(row=>console.log(row.join("")));
         //for(let row of this.field) {
         //    console.log(row.join(""));
@@ -94,7 +115,55 @@ class Field {
     }
 
     updatePlayer(position) {
+        let pos = [0,0];
+        let status = 0;
+        switch(position) {
+            case "u":
+                pos[0] = -1;
+                break;
 
+            case "d":
+                pos[0] = 1;
+                break;
+                
+            case "l":
+                pos[1] = -1;
+                break;
+
+            case "r":
+                pos[1] = 1;
+                break;
+                
+            default:
+                console.log(NOT_RECOGNISED);
+                return;
+        }
+        let x = this.playerPos[0];
+        let y = this.playerPos[1];
+        this.field[x][y] = VISITED;
+
+        for(let i=0; i<2; i++) {
+            this.playerPos[i] += pos[i];
+            if((this.playerPos[i] < 0) || (this.playerPos[i] >= this.rows)) { //player fell out of field
+                console.log(OUT_BOUND);
+                console.log(LOSE);
+                this.endGame();
+                return;
+            }
+        }
+
+        x = this.playerPos[0];
+        y = this.playerPos[1];
+        if(this.field[x][y] === HOLE) {
+            console.log(INTO_HOLE);
+            console.log(LOSE);
+            this.endGame();
+        } else if(this.field[x][y] === HAT) {
+             console.log(WIN);
+            this.endGame();
+        } else {
+            this.field[x][y] = PLAYER;
+         }
     }
 
     updateGame() {
@@ -127,13 +196,13 @@ class Field {
         this.gamePlay = true;
         this.generateField();
         this.printField();
-        this.field[0][0] = PLAYER;
         this.updateGame();
+        this.playerPos = [0,0];
     }
 
 }
 
-const ROWS = Field.welcomeMessage("Welcome!!");;
+const ROWS = Field.welcomeMessage("Welcome!!");
 const COLS = ROWS;
 
 const gameField = new Field(ROWS,COLS);
